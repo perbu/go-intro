@@ -1,6 +1,7 @@
 package channel
 
 import (
+	"fmt"
 	uuid "github.com/nu7hatch/gouuid"
 	"github.com/perbu/go-intro/channels/bank"
 )
@@ -27,12 +28,12 @@ type bankMessage struct {
 	messageType   bankMessageType
 	account       uuid.UUID
 	targetAccount uuid.UUID
-	amount        float64
+	amount        int64
 	rChan         chan bankMessage
 }
 
 type account struct {
-	balance float64
+	balance int64
 }
 type accountMap map[uuid.UUID]*account
 
@@ -78,6 +79,7 @@ func (b *channelBank) banker() {
 			msg.rChan <- ret
 		case quit:
 			close(b.cChan)
+			fmt.Println("Banker goroutine shutting down")
 			break
 		}
 	}
@@ -94,7 +96,7 @@ func (b *channelBank) CreateAccount() uuid.UUID {
 	return ret.account
 }
 
-func (b *channelBank) Balance(account uuid.UUID) float64 {
+func (b *channelBank) Balance(account uuid.UUID) int64 {
 	msg := bankMessage{
 		messageType: getBalance,
 		account:     account,
@@ -110,7 +112,7 @@ func (b *channelBank) getAccount(account uuid.UUID) *account {
 	return b.accounts[account]
 }
 
-func (b *channelBank) Deposit(account uuid.UUID, amount float64) float64 {
+func (b *channelBank) Deposit(account uuid.UUID, amount int64) int64 {
 	msg := bankMessage{
 		messageType: deposit,
 		amount:      amount,
@@ -123,7 +125,7 @@ func (b *channelBank) Deposit(account uuid.UUID, amount float64) float64 {
 	return ret.amount
 }
 
-func (b *channelBank) Withdraw(account uuid.UUID, amount float64) float64 {
+func (b *channelBank) Withdraw(account uuid.UUID, amount int64) int64 {
 	msg := bankMessage{
 		messageType: withdraw,
 		account:     account,
@@ -135,7 +137,7 @@ func (b *channelBank) Withdraw(account uuid.UUID, amount float64) float64 {
 	close(msg.rChan)
 	return ret.amount
 }
-func (b *channelBank) Transfer(from, to uuid.UUID, amount float64 ) {
+func (b *channelBank) Transfer(from, to uuid.UUID, amount int64 ) {
 	msg := bankMessage{
 		messageType:   transfer,
 		account:       from,

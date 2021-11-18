@@ -1,17 +1,16 @@
 package main
 
+// import "alias" "package"
 import (
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql" //
 	"os"
 )
 
-type PingerErrorCode int
-
 const (
-	connectError PingerErrorCode = iota + 1
+	connectError = iota + 1
 	pingError
 )
 
@@ -39,24 +38,16 @@ func getDbConn() (*sql.DB, error) {
 	return dbConn, nil
 }
 
-func myExit(code PingerErrorCode) {
-	fmt.Printf("Aborting application due to exit: %s", code)
-	os.Exit(int(code))
-}
-
 func main() {
 	dbConn, err := getDbConn()
 	if  err != nil {
 		fmt.Printf("Could not connect to database: %s\n", err)
-		myExit(connectError)
+		os.Exit(connectError)
 	}
 	err = dbConn.Ping()
 	if err != nil {
 		fmt.Printf("Could not ping database: %s\n", err)
-		myExit(pingError)
+		os.Exit(pingError)
 	}
 	fmt.Println("Pinged database successfully")
 }
-
-
-//go:generate stringer -type=PingerErrorCode

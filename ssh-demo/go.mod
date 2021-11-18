@@ -3,6 +3,7 @@ module github.com/perbu/go-intro/ssh-demo
 go 1.17
 
 require (
+	github.com/creack/pty v1.1.17
 	github.com/gliderlabs/ssh v0.3.3
 	golang.org/x/crypto v0.0.0-20210915214749-c084706c2272
 )

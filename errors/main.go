@@ -7,6 +7,9 @@ import (
 	"strings"
 )
 
+
+// Todo: lag noe mer konkret om interfaces
+
 type customError struct {
 	code      int
 	location  string

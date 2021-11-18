@@ -1,7 +1,6 @@
 build:
-	go generate ./...
-	go build -o pinger *.go
+	go build -o pinger main.go
 check:
 	go vet ./...
 run:
-	go run *.go
+	go run main.go

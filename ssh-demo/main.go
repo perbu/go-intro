@@ -3,6 +3,7 @@ package main
 import (
 	_ "embed"
 	"fmt"
+	"github.com/creack/pty"
 	"github.com/gliderlabs/ssh"
 	gossh "golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/terminal"
@@ -45,12 +46,17 @@ func sshHandler(s ssh.Session) {
 	defer func(s ssh.Session) { // close the connection on method return. log error if any.
 		err := s.Close()
 		if err != nil {
-			fmt.Print("Error closing connection: %s", err)
+			fmt.Printf("Error closing connection: %s", err)
 		}
 	}(s)
 	if s.RawCommand() != "" {
 		io.WriteString(s, "raw commands are not supported")
 		return
+	}
+
+	ptyReq, winCh, isPty := s.Pty()
+	if isPty {
+		pty.Open()
 	}
 	term := terminal.NewTerminal(s, fmt.Sprintf("%s> ", s.User()))
 	for {
