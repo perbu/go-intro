@@ -46,7 +46,7 @@ func main() {
 // getAlbums responds with the list of all albums as JSON.
 func getAlbums(c *gin.Context) {
 	db.mu.Lock()
-	db.mu.Unlock()
+	defer db.mu.Unlock()
 	c.IndentedJSON(http.StatusOK, db.albums)
 }
 
@@ -70,8 +70,8 @@ func postAlbums(c *gin.Context) {
 // getAlbumByID locates the album whose ID value matches the id
 // parameter sent by the client, then returns that album as a response.
 func getAlbumByID(c *gin.Context) {
-	id,err := strconv.Atoi(c.Param("id"))
-	if err!= nil {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
 		c.AbortWithError(500, err)
 	}
 
