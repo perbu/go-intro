@@ -3,7 +3,6 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"github.com/creack/pty"
 	"github.com/gliderlabs/ssh"
 	gossh "golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/terminal"
@@ -54,11 +53,21 @@ func sshHandler(s ssh.Session) {
 		return
 	}
 
-	ptyReq, winCh, isPty := s.Pty()
-	if isPty {
-		pty.Open()
-	}
 	term := terminal.NewTerminal(s, fmt.Sprintf("%s> ", s.User()))
+	pty, winCh, isPty := s.Pty()
+	if isPty {
+		fmt.Println("PTY term", pty.Term)
+		go func() {
+			for chInfo := range winCh {
+				fmt.Println("winch:", chInfo)
+				err := term.SetSize(chInfo.Width, chInfo.Height)
+				if err != nil {
+					fmt.Println("winch error:", err)
+				}
+			}
+		}()
+	}
+
 	for {
 		line, err := term.ReadLine()
 		if err == io.EOF {
@@ -104,9 +113,9 @@ func main() {
 	serverKey := getPrivateKey()
 	port := 2000
 	server := &ssh.Server{
-		LocalPortForwardingCallback:   nil,
-		Addr:                          fmt.Sprintf(":%d", port),
-		Handler:                       sshHandler,
+		LocalPortForwardingCallback: nil,
+		Addr:                        fmt.Sprintf(":%d", port),
+		Handler:                     sshHandler,
 	}
 	server.AddHostKey(serverKey)
 	app := sshApp{

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package proto;
+option go_package = "github.com/perbu/go-intro/grpc/proto";
+
+
+message CalcRequest {
+  float a = 1;
+  float b = 2;
+}
+
+message CalcResponse {
+  float result = 1;
+}
+
+service AddService {
+  rpc Add(CalcRequest) returns (CalcResponse);
+  rpc Multiply(CalcRequest) returns (CalcResponse);
+}
