@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package proto;
-option go_package = "github.com/perbu/go-intro/grpc/proto";
+option go_package = "github.com/perbu/go-intro/grpc/pb";
 
 
 message CalcRequest {

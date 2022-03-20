@@ -36,10 +36,13 @@ func main() {
 	db.mu.Lock()
 	db.albums = initialData()
 	db.mu.Unlock()
-	router := gin.Default()
+	router := gin.New()
+	router.Use(gin.Recovery())
+	router.Use(gin.Logger())
 	router.GET("/albums", getAlbums)
 	router.GET("/albums/:id", getAlbumByID)
 	router.POST("/albums", postAlbums)
+	router.GET("/panic", getPanic)
 	router.Run(":8080")
 }
 
@@ -86,4 +89,9 @@ func getAlbumByID(c *gin.Context) {
 		}
 	}
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
+}
+
+func getPanic(c *gin.Context) {
+	panic("I don't know what else to do")
+
 }
