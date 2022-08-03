@@ -3,19 +3,24 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/signal"
 	"time"
 )
 
 func main() {
-	println("Hello, world!")
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	fmt.Println("Hello, world!")
+
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
-	run(ctx)
+	timeoutCtx, tmOutCancel := context.WithTimeout(ctx, 3*time.Second)
+	defer tmOutCancel()
+	run(timeoutCtx, 10*time.Second)
 }
 
-func run(ctx context.Context) {
+func run(ctx context.Context, sleepDuration time.Duration) {
 	start := time.Now()
-	err := sleepContext(ctx, 10*time.Second)
+	err := sleepContext(ctx, sleepDuration)
 	fmt.Printf("slept for %v (err = %v) \n", time.Since(start), err)
 }
 

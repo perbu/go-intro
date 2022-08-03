@@ -8,6 +8,8 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"io"
 	"log"
+	"strconv"
+	"strings"
 )
 
 //go:embed id_rsa.pub
@@ -97,7 +99,16 @@ func sshHandler(s ssh.Session) {
 }
 
 func handleTerminalInput(line string) (string, error) {
-	return fmt.Sprintf("echo: %s\n", line), nil
+	ss := strings.SplitN(line, " ", 2)
+	switch ss[0] {
+	case "chonk":
+		chonkSize, _ := strconv.Atoi(ss[1])
+		return handleChonker(chonkSize)
+	case "echo":
+		return fmt.Sprintf("echo: %s\n", line), nil
+	default:
+		return fmt.Sprintf("no idea what you want\n"), nil
+	}
 }
 
 func (a sshApp) myPubKeyHandler(ctx ssh.Context, key ssh.PublicKey) bool {
@@ -106,6 +117,14 @@ func (a sshApp) myPubKeyHandler(ctx ssh.Context, key ssh.PublicKey) bool {
 	} else {
 		return false
 	}
+}
+
+func handleChonker(size int) (string, error) {
+	buf := make([]byte, size)
+	for i := 0; i < size; i++ {
+		buf[i] = 'a'
+	}
+	return string(buf), nil
 }
 
 func main() {
